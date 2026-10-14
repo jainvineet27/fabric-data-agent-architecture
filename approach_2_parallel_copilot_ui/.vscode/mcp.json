@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "local-ssms-mcp": {
+      "type": "http",
+      "url": "https://YOUR-NGROK-URL.ngrok-free.app/mcp"
+    },
+    "published-fabric-agent": {
+      "type": "http",
+      "url": "https://api.fabric.microsoft.com/v1/mcp/workspaces/<WORKSPACE_ID>/dataagents/<AGENT_ID>/agent"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+fastmcp>=2.0.0
+mcp
+pandas
+sqlalchemy
+pyodbc
+python-dotenv
+azure-identity
+tabulate
+requests
+openai
+langchain
+dotenv
