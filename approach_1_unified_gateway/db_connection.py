@@ -24,11 +24,14 @@ else:
     }
     if use_win_auth:
         query_params["trusted_connection"] = "yes"
+    else:
+        # Azure Synapse rejects Windows login; this opens the Microsoft sign-in popup instead
+        query_params["Authentication"] = "ActiveDirectoryInteractive"
 
     connection_url = URL.create(
         drivername="mssql+pyodbc",
-        username=None if use_win_auth else os.getenv("SQL_USERNAME", "sa"),
-        password=None if use_win_auth else os.getenv("SQL_PASSWORD", ""),
+        username=None if use_win_auth else os.getenv("SQL_USERNAME"),
+        password=None,
         host=os.getenv("SQL_SERVER_NAME", "localhost"),
         port=int(os.getenv("SQL_PORT")) if os.getenv("SQL_PORT") else None,
         database=os.getenv("SQL_DATABASE_NAME", "master"),

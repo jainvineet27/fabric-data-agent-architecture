@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv, find_dotenv
-from azure.identity import DefaultAzureCredential, InteractiveBrowserCredential
+from azure.identity import InteractiveBrowserCredential
 from fastmcp import Client
 from fastmcp.client.transports import StreamableHttpTransport
 import asyncio 
@@ -8,24 +8,23 @@ import asyncio
 load_dotenv(find_dotenv())
 
 WORKSPACE_ID = os.getenv("FABRIC_WORKSPACE_ID", "2e818aee-d04a-458d-ae52-53fed65c8c60")
-DATA_AGENT_ID = os.getenv("FABRIC_DATA_AGENT_ID", "1457ceb4-59c4-451b-9781-57acaae18357")
+DATA_AGENT_ID = os.getenv("FABRIC_DATA_AGENT_ID", "f5ef10da-5270-4866-979a-043f55d89f9b")
+
+# Created once so the sign-in popup appears only the first time
+_credential = None
 
 def get_fabric_headers():
-    # 1. Agar user ne direct .env me FABRIC_BEARER_TOKEN diya hai:
+    global _credential
+    # Optional: paste a token in .env instead of signing in
     direct_token = os.getenv("FABRIC_BEARER_TOKEN")
     if direct_token:
         return {"Authorization": f"Bearer {direct_token.strip()}"}
 
-    # 2. Azure Identity se token lena:
-    try:
-        cred = DefaultAzureCredential()
-        token = cred.get_token("https://api.fabric.microsoft.com/.default")
-        return {"Authorization": f"Bearer {token.token}"}
-    except Exception:
-        # 3. Fallback: Browser login popup
-        cred = InteractiveBrowserCredential()
-        token = cred.get_token("https://api.fabric.microsoft.com/.default")
-        return {"Authorization": f"Bearer {token.token}"}
+    # Always use the browser popup so the token belongs to the account that owns the Data Agent
+    if _credential is None:
+        _credential = InteractiveBrowserCredential()
+    token = _credential.get_token("https://api.fabric.microsoft.com/.default")
+    return {"Authorization": f"Bearer {token.token}"}
 
 async def query_fabric_via_fastmcp_client(question: str) -> str:
     """
@@ -75,7 +74,7 @@ async def query_fabric_via_fastmcp_client(question: str) -> str:
 
 
 if __name__=="__main__":
-    query="Tell me top 5 countries with highes active certificates also list down which lakehouse , schema and table have you used to provide this information "
+    query="Tell me top 5 countries with highest active certificates also list down which lakehouse , schema and table have you used to provide this information"
     result = asyncio.run(query_fabric_via_fastmcp_client(query))
     print(result)
 
