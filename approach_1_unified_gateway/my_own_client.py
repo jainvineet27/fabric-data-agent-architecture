@@ -113,7 +113,7 @@ async def main(user_query: str):
 
 
 if __name__ == "__main__":
-    user_query = input("Apna sawaal enter karein: ").strip()
+    user_query = input("Kindly enter your questions: ").strip()
     if not user_query:
         user_query = "Show all tables available in my local database"
     asyncio.run(main(user_query))

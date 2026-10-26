@@ -1,4 +1,6 @@
 import os
+import json
+import base64
 from dotenv import load_dotenv, find_dotenv
 from azure.identity import InteractiveBrowserCredential
 from fastmcp import Client
@@ -24,6 +26,12 @@ def get_fabric_headers():
     if _credential is None:
         _credential = InteractiveBrowserCredential()
     token = _credential.get_token("https://api.fabric.microsoft.com/.default")
+
+    # Show which account is used; "entity not found" usually means the wrong account
+    payload = token.token.split(".")[1]
+    claims = json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))
+    print(f">> Signed in as: {claims.get('upn') or claims.get('unique_name')}")
+
     return {"Authorization": f"Bearer {token.token}"}
 
 async def query_fabric_via_fastmcp_client(question: str) -> str:
